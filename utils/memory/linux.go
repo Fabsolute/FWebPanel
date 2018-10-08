@@ -1,3 +1,5 @@
+// +build linux
+
 package memory
 
 import (
@@ -13,7 +15,7 @@ func GetAll() []types.MemoryInfo {
 		return nil
 	}
 
-	memoryList := make([]types.MemoryInfo, 0, 0)
+	memoryList := make([]types.MemoryInfo, 0, 2)
 
 	reader := bufio.NewReader(strings.NewReader(response))
 	var (
@@ -34,18 +36,18 @@ func GetAll() []types.MemoryInfo {
 
 		parts := strings.Fields(string(line))
 
-		diskStatus := types.MemoryInfo{}
-		diskStatus.Name = strings.TrimSuffix(parts[0], ":")
-		diskStatus.Total = parts[1]
-		diskStatus.Used = parts[2]
-		diskStatus.Free = parts[3]
+		memoryStatus := types.MemoryInfo{}
+		memoryStatus.Name = strings.TrimSuffix(parts[0], ":")
+		memoryStatus.Total = parts[1]
+		memoryStatus.Used = parts[2]
+		memoryStatus.Free = parts[3]
 		if len(parts) > 4 {
-			diskStatus.Shared = parts[4]
-			diskStatus.Buffers = parts[5]
-			diskStatus.Cache = parts[6]
-			diskStatus.Available = parts[7]
+			memoryStatus.Shared = parts[4]
+			memoryStatus.Buffers = parts[5]
+			memoryStatus.Cache = parts[6]
+			memoryStatus.Available = parts[7]
 		}
-		memoryList = append(memoryList, diskStatus)
+		memoryList = append(memoryList, memoryStatus)
 	}
 	return memoryList
 }
