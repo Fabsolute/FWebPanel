@@ -5,10 +5,10 @@ package memory
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"fwebpanel/types"
 	"fwebpanel/utils/cmd"
-	"math"
+	"fwebpanel/utils/cmd/pipe"
+	"fwebpanel/utils/math"
 	"strconv"
 	"strings"
 )
@@ -30,10 +30,10 @@ func GetAll() []types.MemoryInfo {
 		totalMemory, _ := strconv.ParseUint(string(line), 10, 64)
 		memoryInfo := types.MemoryInfo{}
 		memoryInfo.Name = "Mem"
-		memoryInfo.Total = format(totalMemory)
+		memoryInfo.Total = math.Format(totalMemory)
 		totalPaged := getPaged("wired down", "active", "inactive")
-		memoryInfo.Used = format(totalPaged * 4096)
-		memoryInfo.Free = format(totalMemory - totalPaged*4096)
+		memoryInfo.Used = math.Format(totalPaged * 4096)
+		memoryInfo.Free = math.Format(totalMemory - totalPaged*4096)
 
 		memoryList = append(memoryList, memoryInfo)
 	}
@@ -56,15 +56,15 @@ func GetAll() []types.MemoryInfo {
 		freeRight := freeSplit[1]
 		encryptedSplit := strings.Split(freeRight, "(encrypted")
 
-		total := strings.TrimSpace(usedSplit[0])
-		used := strings.TrimSpace(freeSplit[0])
-		free := strings.TrimSpace(encryptedSplit[0])
+		total := math.Deformat(usedSplit[0])
+		used := math.Deformat(freeSplit[0])
+		free := math.Deformat(encryptedSplit[0])
 
 		memoryInfo := types.MemoryInfo{}
 		memoryInfo.Name = "Swap"
-		memoryInfo.Total = total
-		memoryInfo.Used = used
-		memoryInfo.Free = free
+		memoryInfo.Total = math.Format(total)
+		memoryInfo.Used = math.Format(used)
+		memoryInfo.Free = math.Format(free)
 
 		memoryList = append(memoryList, memoryInfo)
 	}
@@ -88,7 +88,7 @@ func getPaged(match ...string) uint64 {
 		}
 
 		var out bytes.Buffer
-		pipes := cmd.NewPipe(&out)
+		pipes :=  pipe.New(&out)
 		pipes.Pipe("vm_stat").
 			Pipe("grep", "Pages "+match[0]).
 			Pipe("awk", "{print $"+count+"}").
@@ -106,28 +106,4 @@ func getPaged(match ...string) uint64 {
 	}
 
 	return total
-}
-
-func format(s uint64) string {
-	sizes := []string{"B", "K", "M", "G", "T", "P", "E"}
-	return makeHumanReadable(s, 1000, sizes)
-}
-
-func makeHumanReadable(s uint64, base float64, sizes []string) string {
-	if s < 10 {
-		return fmt.Sprintf("%d B", s)
-	}
-	e := math.Floor(logn(float64(s), base))
-	suffix := sizes[int(e)]
-	val := math.Floor(float64(s)/math.Pow(base, e)*10+0.5) / 10
-	f := "%.0f %s"
-	if val < 10 {
-		f = "%.1f %s"
-	}
-
-	return fmt.Sprintf(f, val, suffix)
-}
-
-func logn(n, b float64) float64 {
-	return math.Log(n) / math.Log(b)
 }

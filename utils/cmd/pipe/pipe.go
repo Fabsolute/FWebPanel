@@ -1,4 +1,4 @@
-package cmd
+package pipe
 
 import (
 	"io"
@@ -15,7 +15,7 @@ type command struct {
 	arguments []string
 }
 
-func NewPipe(stdOut io.Writer) *Pipe {
+func New(stdOut io.Writer) *Pipe {
 	return &Pipe{make([]command, 0), stdOut}
 }
 
