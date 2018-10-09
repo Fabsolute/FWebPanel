@@ -1,16 +1,16 @@
-// +build linux
+//+build linux
 
 package memory
 
 import (
 	"bufio"
 	"fwebpanel/types"
-	"fwebpanel/utils"
+	"fwebpanel/utils/cmd"
 	"strings"
 )
 
 func GetAll() []types.MemoryInfo {
-	response, ok := utils.Exec("free", "-wth")
+	response, ok := cmd.Exec("free", "-wh")
 	if !ok {
 		return nil
 	}

@@ -5,13 +5,13 @@ package disk
 import (
 	"bufio"
 	"fwebpanel/types"
-	"fwebpanel/utils"
+	"fwebpanel/utils/cmd"
 	"strconv"
 	"strings"
 )
 
 func GetAll() []types.DiskInfo {
-	response, ok := utils.Exec("df", "-h")
+	response, ok := cmd.Exec("df", "-h")
 	if !ok {
 		return nil
 	}
@@ -36,13 +36,23 @@ func GetAll() []types.DiskInfo {
 		}
 
 		parts := strings.Fields(string(line))
+		if len(parts) == 10 {
+			parts[0] = parts[0] + " " + parts[1]
+			parts[1] = parts[2]
+			parts[2] = parts[3]
+			parts[3] = parts[4]
+			parts[4] = parts[5]
+			parts[8] = parts[9]
+		} else if len(parts) != 9 {
+			continue
+		}
 
 		fileSystem := parts[0]
 		all := parts[1]
 		used := parts[2]
 		free := parts[3]
 		usagePercentage, _ := strconv.Atoi(strings.TrimSuffix(parts[4], "%"))
-		mounted := parts[5]
+		mounted := parts[8]
 
 		diskStatus := types.DiskInfo{}
 		diskStatus.FileSystem = fileSystem

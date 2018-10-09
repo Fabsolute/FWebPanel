@@ -5,13 +5,13 @@ package disk
 import (
 	"bufio"
 	"fwebpanel/types"
-	"fwebpanel/utils"
+	"fwebpanel/utils/cmd"
 	"strconv"
 	"strings"
 )
 
 func GetAll() []types.DiskInfo {
-	response, ok := utils.Exec("df", "-h")
+	response, ok := cmd.Exec("df", "-h")
 	if !ok {
 		return nil
 	}
